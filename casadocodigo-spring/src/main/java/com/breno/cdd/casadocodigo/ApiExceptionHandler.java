@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.Assert;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -15,6 +16,7 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 @RestControllerAdvice
 @Slf4j
@@ -50,8 +52,7 @@ class ApiExceptionHandler extends ResponseEntityExceptionHandler {
             RuntimeException exception,
             WebRequest request
     ) {
-        String errorContext = "[path: "+ request.getContextPath() + "][params: " + request.getParameterMap() + "]";
-        log.error("Unknown error occurred: " + errorContext, exception);
+        log.error("Unknown error occurred: " + request, exception);
 
         return buildErrorResponse(exception, "Unknown error occurred", HttpStatus.INTERNAL_SERVER_ERROR);
     }
@@ -82,6 +83,10 @@ class ApiExceptionHandler extends ResponseEntityExceptionHandler {
             String message,
             HttpStatus httpStatus
     ) {
+        Assert.notNull(exception, "exception não pode ser nula");
+        Assert.notNull(message, "message não pode ser nula");
+        Assert.notNull(httpStatus, "Status não pode ser nulo");
+
         ErrorResponse errorResponse = new ErrorResponse(message);
 
         // 1

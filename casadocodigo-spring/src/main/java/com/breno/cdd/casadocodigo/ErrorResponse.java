@@ -5,6 +5,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 import javax.validation.constraints.NotBlank;
@@ -14,7 +15,7 @@ import java.util.Objects;
 
 @Getter
 @JsonInclude(JsonInclude.Include.NON_NULL)
-// Carga = 2
+// Carga = 1
 class ErrorResponse {
     private final String message;
 
@@ -35,19 +36,15 @@ class ErrorResponse {
     }
 
     public ErrorResponse(@NotBlank String message) {
-        Objects.requireNonNull(message, "Mensagem de erro não pode ser nula");
-        // 1
-        if ("".equals(message)){
-            throw new IllegalArgumentException("Mensagem de erro não pode ser vazia");
-        }
+        Assert.hasText(message, "Mensagem de erro não pode ser nula ou vazia");
 
         this.message = message;
         this.errors = new ArrayList<>();
     }
 
     public void addValidationError(@NotBlank String field, @NotBlank String message) {
-        Objects.requireNonNull(field);
-        Objects.requireNonNull(message);
+        Assert.hasText(field, "field não pode ser nulo ou vazio");
+        Assert.hasText(message, "message não pode ser nula ou vazia");
 
         errors.add(new ValidationError(field, message));
     }
