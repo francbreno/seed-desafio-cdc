@@ -3,10 +3,12 @@ package com.breno.cdd.casadocodigo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.junit.platform.commons.util.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -15,14 +17,17 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import javax.validation.constraints.NotNull;
 import java.util.Arrays;
 import java.util.Objects;
 
 @RestControllerAdvice
 @Slf4j
 @RequiredArgsConstructor
-// Carga: 4
+// Carga: 6
 class ApiExceptionHandler extends ResponseEntityExceptionHandler {
+    public static final String UNEXPECTED_ERROR_MESSAGE = "Ocorreu um erro inesperado";
+    public static final String VALIDATION_ERROR_MESSAGE = "Erro de validação";
 
     @Value("${spring.profiles.active}")
     private String activeProfile;
@@ -36,7 +41,7 @@ class ApiExceptionHandler extends ResponseEntityExceptionHandler {
             WebRequest request)
     {
         // 1
-        ErrorResponse errorResponse = new ErrorResponse("Erro de validação");
+        ErrorResponse errorResponse = new ErrorResponse(VALIDATION_ERROR_MESSAGE);
 
         // 1
         exception.getBindingResult().getFieldErrors().forEach(error -> {
@@ -53,8 +58,7 @@ class ApiExceptionHandler extends ResponseEntityExceptionHandler {
             WebRequest request
     ) {
         log.error("Unknown error occurred: " + request, exception);
-
-        return buildErrorResponse(exception, "Unknown error occurred", HttpStatus.INTERNAL_SERVER_ERROR);
+        return buildErrorResponse(exception, UNEXPECTED_ERROR_MESSAGE, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @Override
@@ -65,13 +69,16 @@ class ApiExceptionHandler extends ResponseEntityExceptionHandler {
             HttpStatus status,
             WebRequest request)
     {
-        return super.handleExceptionInternal(ex, body, headers, status, request);
+        log.error("Unknown error occurred: " + request, ex);
+        return buildErrorResponse(ex,status);
     }
 
     private ResponseEntity<Object> buildErrorResponse(
-            Exception exception,
+            @NotNull Exception exception,
             HttpStatus httpStatus
     ) {
+        Assert.notNull(exception, "exception não pode ser nula");
+
         return buildErrorResponse(
                 exception,
                 exception.getMessage(),
@@ -80,12 +87,15 @@ class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 
     private ResponseEntity<Object> buildErrorResponse(
             Exception exception,
-            String message,
-            HttpStatus httpStatus
+            @Nullable String message,
+            @Nullable HttpStatus httpStatus
     ) {
         Assert.notNull(exception, "exception não pode ser nula");
-        Assert.notNull(message, "message não pode ser nula");
-        Assert.notNull(httpStatus, "Status não pode ser nulo");
+
+        // 1
+        HttpStatus returnedStatusCode = httpStatus == null ? HttpStatus.INTERNAL_SERVER_ERROR : httpStatus;
+        // 1
+        String returnedMessage = StringUtils.isBlank(message) ? UNEXPECTED_ERROR_MESSAGE : message;
 
         ErrorResponse errorResponse = new ErrorResponse(message);
 

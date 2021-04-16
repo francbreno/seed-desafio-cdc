@@ -6,12 +6,10 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.springframework.util.Assert;
-import org.springframework.util.StringUtils;
 
 import javax.validation.constraints.NotBlank;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 @Getter
 @JsonInclude(JsonInclude.Include.NON_NULL)
