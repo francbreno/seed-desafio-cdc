@@ -1,6 +1,6 @@
 package com.breno.cdd.casadocodigo.cadastronovoautor;
 
-import lombok.NoArgsConstructor;
+import com.breno.cdd.casadocodigo.compartilhado.UniqueValue;
 import lombok.Value;
 
 import javax.validation.constraints.Email;
@@ -16,6 +16,7 @@ class CadastroNovoAutorRequest {
 
     @Email
     @NotBlank
+    @UniqueValue(domainClass = Autor.class, property = "email")
     private final String email;
 
     @NotBlank
