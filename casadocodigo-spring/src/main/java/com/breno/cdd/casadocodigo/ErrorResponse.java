@@ -5,15 +5,19 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
+import org.springframework.validation.FieldError;
+import org.springframework.validation.ObjectError;
 
 import javax.validation.constraints.NotBlank;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Getter
 @JsonInclude(JsonInclude.Include.NON_NULL)
-// Carga = 1
+// Carga = 5
 class ErrorResponse {
     private final String message;
 
@@ -23,6 +27,7 @@ class ErrorResponse {
     @Setter
     private String stackTrace;
     // 1
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private List<ValidationError> errors;
 
     @Getter
@@ -44,6 +49,18 @@ class ErrorResponse {
         Assert.hasText(field, "field não pode ser nulo ou vazio");
         Assert.hasText(message, "message não pode ser nula ou vazia");
 
-        errors.add(new ValidationError(field, message));
+        this.errors.add(new ValidationError(field, message));
+    }
+
+    public void addFieldErrors(@Nullable List <FieldError> errors) {
+        // 2
+        Optional.ofNullable(errors).ifPresent(existingErrors ->
+                errors.forEach(error -> addValidationError(error.getField(), error.getDefaultMessage())));
+    }
+
+    public void addGlobalErrors(@Nullable List<ObjectError> errors) {
+        // 2
+        Optional.ofNullable(errors).ifPresent(existingErrors ->
+                errors.forEach(error -> addValidationError(error.getObjectName(), error.getDefaultMessage())));
     }
 }

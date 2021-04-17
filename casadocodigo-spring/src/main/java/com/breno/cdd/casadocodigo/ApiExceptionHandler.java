@@ -42,11 +42,8 @@ class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     {
         // 1
         ErrorResponse errorResponse = new ErrorResponse(VALIDATION_ERROR_MESSAGE);
-
-        // 1
-        exception.getBindingResult().getFieldErrors().forEach(error -> {
-            errorResponse.addValidationError(error.getField(), error.getDefaultMessage());
-        });
+        errorResponse.addFieldErrors(exception.getBindingResult().getFieldErrors());
+        errorResponse.addGlobalErrors(exception.getBindingResult().getGlobalErrors());
 
         return ResponseEntity.badRequest().body(errorResponse);
     }
