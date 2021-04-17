@@ -1,8 +1,18 @@
-package com.breno.cdd.casadocodigo.cadastrocategoria
+package com.breno.cdd.casadocodigo.cadastrocategoria;
 
+import lombok.RequiredArgsConstructor;
+
+import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+
+@RequiredArgsConstructor
+@Entity
 class Categoria {
-    def nome
+   @Id
+   @GeneratedValue(strategy = GenerationType.IDENTITY)
+   private Long id;
 
-    Categoria(String nome) {
-    }
+   @NotBlank
+   @Column(unique = true)
+   private final String nome;
 }

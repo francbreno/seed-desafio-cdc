@@ -11,12 +11,12 @@ import spock.lang.Specification
 import spock.lang.Unroll
 
 import javax.persistence.EntityManager
+import javax.persistence.Query
 
 import static groovy.json.JsonOutput.toJson
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 
 @WebMvcTest([CadastroNovoAutorController])
-@AutoConfigureJsonTesters
 class CadastroNovoAutorControllerSpec extends Specification {
     @Autowired
     MockMvc mvc
@@ -24,12 +24,18 @@ class CadastroNovoAutorControllerSpec extends Specification {
     @SpringBean
     EntityManager em = Mock()
 
+    Query query = Mock()
+
     def "Deve criar um novo autor"() {
         given:
         def requestData = [
                 nome: "Fulano de Tal",
                 email: "fufu@gmail.com",
                 descricao: "Uma pessoa sem personalidade"]
+
+        query.getResultList() >> []
+        query.setParameter("value", requestData.email) >> query
+        em.createQuery(_ as String) >> query
 
         when:
         def result = mvc.perform(post("/autores")
@@ -57,6 +63,11 @@ class CadastroNovoAutorControllerSpec extends Specification {
     def "Não deve criar um novo autor com os seguintes dados: nome: #nome, email: #email e descricao: #descricao"() {
         given:
             def requestData = [nome: nome, email: email, descricao: descricao]
+
+            query.getResultList() >> []
+            query.setParameter("value", requestData.email) >> query
+            em.createQuery(_ as String) >> query
+
         when:
         def response = mvc.perform(post("/autores")
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
