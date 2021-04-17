@@ -22,6 +22,7 @@
         <objenesis.version>3.1</objenesis.version>
         <spock-reports.version>1.7.1</spock-reports.version>
         <gmavenplus-pluggin.version>1.11.0</gmavenplus-pluggin.version>
+        <pitest.version>1.6.4</pitest.version>
     </properties>
     <dependencies>
         <dependency>
@@ -156,6 +157,11 @@
                         </exclude>
                     </excludes>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.pitest</groupId>
+                <artifactId>pitest-maven</artifactId>
+                <version>${pitest.version}</version>
             </plugin>
         </plugins>
     </build>
