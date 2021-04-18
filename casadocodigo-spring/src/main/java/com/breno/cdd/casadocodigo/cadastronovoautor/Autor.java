@@ -53,6 +53,9 @@ public class Autor {
     }
 
     void setId(Long id) {
+        if (this.id != null) {
+            throw new IllegalStateException("Não é permitido alterar o id de um autor que já tem id definido");
+        }
         this.id = id;
     }
 }
