@@ -1,5 +1,6 @@
 package com.breno.cdd.casadocodigo.cadastrocategoria;
 
+import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -9,7 +10,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 
 @Entity
-@NoArgsConstructor(force = true) // Para atender exigência do framework
+@NoArgsConstructor(force = true, access = AccessLevel.PACKAGE) // Para atender exigência do framework
 public
 class Categoria {
    @Id

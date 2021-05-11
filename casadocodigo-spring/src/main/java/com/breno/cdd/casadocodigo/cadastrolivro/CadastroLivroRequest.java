@@ -2,8 +2,10 @@ package com.breno.cdd.casadocodigo.cadastrolivro;
 
 import com.breno.cdd.casadocodigo.cadastrocategoria.Categoria;
 import com.breno.cdd.casadocodigo.cadastronovoautor.Autor;
+import com.breno.cdd.casadocodigo.compartilhado.AssociatedEntityNotFoundException;
 import com.breno.cdd.casadocodigo.compartilhado.UniqueValue;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.Builder;
 import lombok.Value;
 import org.springframework.util.Assert;
 
@@ -35,6 +37,7 @@ public class CadastroLivroRequest {
     private final Integer paginas;
 
     @NotBlank
+    @UniqueValue(domainClass = Livro.class, property = "isbn")
     private final String isbn;
 
     @NotNull
@@ -48,6 +51,7 @@ public class CadastroLivroRequest {
     @NotNull
     private final Long idAutor;
 
+    @Builder
     public CadastroLivroRequest(
             @NotBlank String titulo,
             @NotBlank @Size(max = 500) String resumo,
@@ -81,8 +85,8 @@ public class CadastroLivroRequest {
     }
 
     public Livro toModel(EntityManager em) {
-        Categoria categoria = Optional.ofNullable(em.find(Categoria.class, this.idCategoria)).orElseThrow(() -> new IllegalArgumentException("Não foi encontrada categoria com id " + idCategoria));
-        Autor autor = Optional.ofNullable(em.find(Autor.class, this.idAutor)).orElseThrow(() -> new IllegalArgumentException("Não foi encontrado autor com id " + idAutor));
+        Categoria categoria = Optional.ofNullable(em.find(Categoria.class, this.idCategoria)).orElseThrow(() -> new AssociatedEntityNotFoundException(Categoria.class, idCategoria));
+        Autor autor = Optional.ofNullable(em.find(Autor.class, this.idAutor)).orElseThrow(() -> new AssociatedEntityNotFoundException(Autor.class, idAutor));
 
         return new Livro.LivroBuilder()
                 .titulo(this.titulo)

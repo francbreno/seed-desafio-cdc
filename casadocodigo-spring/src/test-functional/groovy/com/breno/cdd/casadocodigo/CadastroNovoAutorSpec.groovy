@@ -7,6 +7,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
+import org.springframework.transaction.annotation.Transactional
 import spock.lang.Specification
 
 import static io.restassured.RestAssured.*
@@ -26,6 +27,7 @@ class CadastroNovoAutorSpec extends Specification {
                 .build()
     }
 
+    @Transactional
     def "Deve cadastrar novo autor quando são fornecidos dados válidos"() {
         given: "Eu quero cadastrar um novo autor"
         def novoAutor = [nome: "Fulano de Tal", email: "fufu@gmail.com", descricao: "Uma pessoa sem personalidade"]

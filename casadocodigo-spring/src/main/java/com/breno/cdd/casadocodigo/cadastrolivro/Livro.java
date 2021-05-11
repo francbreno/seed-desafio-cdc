@@ -14,7 +14,7 @@ import java.time.LocalDate;
 @Entity
 @ToString
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-@NoArgsConstructor(access = AccessLevel.PUBLIC, force = true) // Para atender exigência do framework
+@NoArgsConstructor(access = AccessLevel.PACKAGE, force = true) // Para atender exigência do framework
 public class Livro {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -41,6 +41,7 @@ public class Livro {
     private final Integer paginas;
 
     @NotBlank
+    @Column(unique = true)
     private final String isbn;
 
     @NotNull

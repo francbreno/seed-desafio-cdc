@@ -1,9 +1,9 @@
 package com.breno.cdd.casadocodigo.compartilhado;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.util.Assert;
 
-import javax.persistence.EntityManager;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import java.util.List;
@@ -13,7 +13,7 @@ public class UniqueValueValidator implements ConstraintValidator<UniqueValue, Ob
     private String property;
     private Class<?> klass;
 
-    private final EntityManager em;
+    private final JdbcTemplate jdbcTemplate;
 
     @Override
     public boolean isValid(Object value, ConstraintValidatorContext context) {
@@ -21,11 +21,8 @@ public class UniqueValueValidator implements ConstraintValidator<UniqueValue, Ob
             return true;
         }
 
-        List<?> resultList = em.createQuery("select 1 from "+ this.klass.getName() + " where " + this.property + "= :value")
-                .setParameter("value", value)
-                .getResultList();
-
-        Assert.state(resultList.size() <= 1, "Mais de um " + this.klass + " foi encontrado com o valor " + value);
+        List<Integer> resultList = jdbcTemplate.queryForList("select 1 from " + this.klass.getSimpleName() + " where " + this.property + "= ?", Integer.class, value);
+        Assert.state(resultList.size() <= 1, "Mais de um(a) " + this.klass + " foi encontrado(a) com o valor " + value);
 
         return resultList.isEmpty();
     }
